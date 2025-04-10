@@ -1,15 +1,10 @@
 from flask import Flask
-from flask import render_template
 
 app = Flask(__name__)
 
 @app.route('/')
 def hello():
     return '<h1>Hello from Flask!</h1>'
-
-@app.route("/hello/<username>/")
-def hello_user(username):
-    return render_template('layout.html', name=username)
 
 import pymysql
 import creds 
@@ -42,12 +37,12 @@ def display_html(rows):
     return html
 
 
-@app.route("/viewdb")
+@app.route("/viewmovie")
 def viewdb():
     rows = execute_query("""SELECT title, release_date, runtime
                 FROM movie
-                ORDER BY title
-                Limit 500""")
+                ORDER BY release_date
+                Limit 50""")
     return display_html(rows)
 
 if __name__ == '__main__':

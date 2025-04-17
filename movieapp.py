@@ -1,13 +1,67 @@
 from flask import Flask
-
-app = Flask(__name__)
-
-@app.route('/')
-def hello():
-    return '<h1>Hello from Flask!</h1>'
-
+from flask import render_template
+from flask import Flask, render_template, request, redirect, url_for, flash
 import pymysql
 import creds 
+import boto3
+
+app = Flask(__name__)
+app.secret_key = 'your_secret_key'                            
+
+@app.route('/')
+def home():
+    return render_template('home.html')
+
+TABLE_NAME = "Users"
+
+dynamodb = boto3.resource('dynamodb', region_name="us-east-1")
+table = dynamodb.Table(TABLE_NAME)
+
+@app.route('/add-user', methods=['GET', 'POST'])
+def add_user():
+    if request.method == 'POST':
+        first_name = request.form['first_name']
+        last_name = request.form['last_name']
+        email = request.form['email']
+        password = request.form['password']
+        
+        table.put_item (
+            Item={
+            "FirstName": first_name,
+            "LastName": last_name,
+            "Email": email,
+            "Password": password,
+            }
+        )
+        
+        flash('User added successfully!', 'success')
+        return redirect(url_for('home'))
+    else:
+        return render_template('add_user.html')
+    
+@app.route('/delete-user', methods=['GET', 'POST'])
+def delete_user():
+    if request.method == 'POST':
+        email = request.form['email']
+        #password = request.form['password']
+
+        table.delete_item(
+            Key={
+            "Email": email,
+            #"Password": password,
+            }
+        )
+        flash('User deleted successfully!', 'warning')
+        return redirect(url_for('home'))
+    else:
+        return render_template('delete_user.html')
+
+@app.route('/display-users')
+def display_users():
+    # hard code a value to the users_list;
+    # note that this could have been a result from an SQL query :) 
+    users_list = (('John','Doe','Comedy'),('Jane', 'Doe','Drama'))
+    return render_template('display_users.html', users = users_list)
 
 def get_conn():
     conn = pymysql.connect(
@@ -24,7 +78,6 @@ def execute_query(query, args=()):
     rows = cur.fetchall()
     cur.close()
     return rows
-
 
 #display the sqlite query in a html table
 def display_html(rows):

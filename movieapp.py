@@ -6,17 +6,25 @@ import creds
 import boto3
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'                            
+app.secret_key = 'your_secret_key' 
 
-@app.route('/')
-def home():
-    return render_template('home.html')
-
+#connecting to dynamodb database
 TABLE_NAME = "Users"
 
 dynamodb = boto3.resource('dynamodb', region_name="us-east-1")
 table = dynamodb.Table(TABLE_NAME)
 
+#app routes
+#home page - sign in 
+@app.route('/')
+def home():
+    return render_template('home.html')
+
+    #sign in - input email and password and redirect to user home
+    #add user - rediect to add user page
+
+#add user page
+    #add user function and then redirect to home page
 @app.route('/add-user', methods=['GET', 'POST'])
 def add_user():
     if request.method == 'POST':
@@ -39,16 +47,23 @@ def add_user():
     else:
         return render_template('add_user.html')
     
+#user homepage
+    #list favorite genre 
+    #lsit movies that are also in that genre and came out within a similar timeframe
+        #RDS and joins
+
+    #option to update user
+    #option to delete user
+#delete user
+    #input email
 @app.route('/delete-user', methods=['GET', 'POST'])
 def delete_user():
     if request.method == 'POST':
         email = request.form['email']
-        #password = request.form['password']
 
         table.delete_item(
             Key={
             "Email": email,
-            #"Password": password,
             }
         )
         flash('User deleted successfully!', 'warning')
@@ -56,8 +71,41 @@ def delete_user():
     else:
         return render_template('delete_user.html')
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
 @app.route('/display-users')
 def display_users():
+    response = table.scan()
+    for email in response["Items"]:
+        print_game(game)
+        print(" \n")
     # hard code a value to the users_list;
     # note that this could have been a result from an SQL query :) 
     users_list = (('John','Doe','Comedy'),('Jane', 'Doe','Drama'))

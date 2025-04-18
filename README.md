@@ -8,6 +8,9 @@ The recommenation screen then allows the user to pick either a recommenation bas
 
 ## imports and databases used
 Flask
+
 Boto3
+
 dynamoDB users database
+
 movies database

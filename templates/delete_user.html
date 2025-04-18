@@ -1,14 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Delete User</title>
+    <title>Add New User</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <h1>Delete User</h1>
-    <form action="{{ url_for('delete_user') }}" method="post">
-        <label for="genre">email of the user you want to delete:</label><br>
-        <input type="text" id="genre" name="email" required><br>
-        <input type="submit" value="Submit">
+    <div class="container">
+        <h1 class="mt-5">Delete User</h1>
+        <form action="{{ url_for('delete_user') }}" method="post">
+            <label for="genre">email of the user you want to delete:</label><br>
+            <input type="text" id="genre" name="email" required><br>
+            <input type="submit" value="Submit">
     </form>
 </body>
 </html>

@@ -5,8 +5,6 @@ import pymysql
 import creds 
 import boto3
 
-
-
 app = Flask(__name__)
 app.secret_key = 'your_secret_key' 
 
@@ -17,11 +15,9 @@ dynamodb = boto3.resource('dynamodb', region_name="us-east-1")
 table = dynamodb.Table(TABLE_NAME)
 
 #app routes
-#home page - sign in 
 @app.route('/')
 def home():
     return render_template('home.html')
-    #options are sign into account with will rediect to user home page or too create an account
 
 #add user page
     #add user function and then redirect to home page
@@ -31,14 +27,14 @@ def add_user():
         first_name = request.form['first_name']
         last_name = request.form['last_name']
         email = request.form['email']
-        password = request.form['password']
+        genre = request.form['genre']
         
         table.put_item (
             Item={
             "FirstName": first_name,
             "LastName": last_name,
             "Email": email,
-            "Password": password,
+            "Genre": genre,
             }
         )
         
@@ -62,17 +58,37 @@ def delete_user():
         return redirect(url_for('home'))
     else:
         return render_template('delete_user.html')
+
+#update user    
+@app.route('/update-user', methods=['GET', 'POST'])
+def update_user():
+    if request.method == 'POST':
+        email = request.form['email']
+        genre = request.form['genre']
+
+        try:
+            table.update_item(
+                Key={'Email': email},
+                UpdateExpression='SET Genre = :g',
+                ExpressionAttributeValues={':g': genre}
+            )
+            flash('User updated successfully!', 'success')
+            return redirect(url_for('home'))
+
+        except Exception as e:
+            print("Update error:", e)
+            flash('Error updating user.', 'danger')
+            return redirect(url_for('home'))
+
+    else:
+        return render_template('update_user.html')
     
+#display all users
+
 #user homepage
 @app.route('/user_home')
 def user_home():
     return render_template('user_home.html')
-    #list favorite genre 
-    #lsit movies that are also in that genre and came out within a similar timeframe
-        #RDS and joins
-
-    #option to update user
-    #option to delete user
 
 
 

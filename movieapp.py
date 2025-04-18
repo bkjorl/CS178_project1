@@ -1,9 +1,10 @@
 from flask import Flask
 from flask import render_template
-from flask import Flask, render_template, request, redirect, url_for, flash, session #session was added with the help of ChatGPT
+from flask import Flask, render_template, request, redirect, url_for, flash
 import pymysql
 import creds 
 import boto3
+
 
 
 app = Flask(__name__)
@@ -21,37 +22,6 @@ table = dynamodb.Table(TABLE_NAME)
 def home():
     return render_template('home.html')
     #options are sign into account with will rediect to user home page or too create an account
-
-@app.route('/login', methods=['POST'])
-def login():
-    email = request.form['Email']
-    password = request.form['Password']
-
-    try:
-        response = table.get_item(Key={'email': email})
-        user = response.get('Item')
-
-        if user and user['password'] == password:  # In real apps, use hashed passwords
-            session['user'] = email
-            flash('Login successful!', 'success')
-            return redirect(url_for('user_home'))
-        else:
-            flash('Invalid email or password.', 'danger')
-            return redirect(url_for('home'))
-
-    except Exception as e:
-        print("DynamoDB error:", e)
-        flash('An error occurred during login.', 'danger')
-        return redirect(url_for('home'))
-
-@app.route('/user_home')
-def dashboard():
-    user_email = session.get('user')  # assuming you saved the email during login
-    if not user_email:
-        flash('Please log in first.', 'warning')
-        return redirect(url_for('home'))
-    return render_template('user_home.html', user_email=user_email)
-
 
 #add user page
     #add user function and then redirect to home page
@@ -77,15 +47,6 @@ def add_user():
     else:
         return render_template('add_user.html')
     
-#user homepage
-
-    #list favorite genre 
-    #lsit movies that are also in that genre and came out within a similar timeframe
-        #RDS and joins
-
-    #option to update user
-    #option to delete user
-
 #delete user
 @app.route('/delete-user', methods=['GET', 'POST'])
 def delete_user():
@@ -101,6 +62,18 @@ def delete_user():
         return redirect(url_for('home'))
     else:
         return render_template('delete_user.html')
+    
+#user homepage
+@app.route('/user_home')
+def user_home():
+    return render_template('user_home.html')
+    #list favorite genre 
+    #lsit movies that are also in that genre and came out within a similar timeframe
+        #RDS and joins
+
+    #option to update user
+    #option to delete user
+
 
 
 

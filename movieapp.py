@@ -84,6 +84,18 @@ def update_user():
         return render_template('update_user.html')
     
 #display all users
+@app.route('/display-users')
+def display_users():
+    try:
+        response = table.scan()
+        users = response.get('Items', [])
+        return render_template('display_users.html', users=users)
+
+    except Exception as e:
+        print("Scan error:", e)
+        flash('Could not load users.', 'danger')
+        return redirect(url_for('home'))
+
 
 #user homepage
 @app.route('/user_home')
@@ -120,16 +132,6 @@ def user_home():
     
 
 
-@app.route('/display-users')
-def display_users():
-    response = table.scan()
-    for email in response["Items"]:
-        print_game(game)
-        print(" \n")
-    # hard code a value to the users_list;
-    # note that this could have been a result from an SQL query :) 
-    users_list = (('John','Doe','Comedy'),('Jane', 'Doe','Drama'))
-    return render_template('display_users.html', users = users_list)
 
 def get_conn():
     conn = pymysql.connect(

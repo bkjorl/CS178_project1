@@ -4,6 +4,8 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 import pymysql
 import creds 
 import boto3
+#session created with the help of chatgpt
+
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key' 

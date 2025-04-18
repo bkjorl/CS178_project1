@@ -2,19 +2,23 @@
 <html lang="en">
 <head>
     <title>Add New User</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <h1>Add New User</h1>
-    <form action="{{ url_for('add_user') }}" method="post">
-        <label for="name">First Name:</label><br>
-        <input type="text" id="first_name" name="first_name" required><br>
-        <label for="name">Last Name:</label><br>
-        <input type="text" id="last_name" name="last_name" required><br>
-        <label for="genre">Email:</label><br>
-        <input type="text" id="email" name="email" required><br>
-        <label for="genre">password:</label><br>
-        <input type="text" id="password" name="password" required><br>
-        <input type="submit" value="Submit">
-    </form>
+    <div class="container">
+        <h1 class="mt-5"> Add New User</h1>
+        <form action="{{ url_for('add_user') }}" method="post">
+            <label for="name">First Name:</label><br>
+            <input type="text" id="first_name" name="first_name" required><br>
+            <label for="name">Last Name:</label><br>
+            <input type="text" id="last_name" name="last_name" required><br>
+            <label for="genre">Email:</label><br>
+            <input type="text" id="email" name="email" required><br>
+            <label for="genre">Password:</label><br>
+            <input type="text" id="password" name="password" required><br>
+            <input type="submit" value="Submit">
+        </form>
+    </div>
 </body>
 </html>

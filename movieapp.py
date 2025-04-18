@@ -24,8 +24,8 @@ def home():
 
 @app.route('/login', methods=['POST'])
 def login():
-    email = request.form['email']
-    password = request.form['password']
+    email = request.form['Email']
+    password = request.form['Password']
 
     try:
         response = table.get_item(Key={'email': email})
@@ -43,6 +43,15 @@ def login():
         print("DynamoDB error:", e)
         flash('An error occurred during login.', 'danger')
         return redirect(url_for('home'))
+
+@app.route('/user_home')
+def dashboard():
+    user_email = session.get('user')  # assuming you saved the email during login
+    if not user_email:
+        flash('Please log in first.', 'warning')
+        return redirect(url_for('home'))
+    return render_template('user_home.html', user_email=user_email)
+
 
 #add user page
     #add user function and then redirect to home page

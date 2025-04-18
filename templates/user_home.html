@@ -1,0 +1,36 @@
+!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>User Home Page</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- display a flash message here, if necessary -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <div class="container">
+        <h1 class="mt-5">Sign In</h1>
+        <div class="container">
+
+        </div>
+        
+        <!-- the formatting for this section was done with the help of Chatgpt -->
+        <div class="d-flex mt-3">
+            <input type="submit" value="Submit" class="btn btn-success mr-2">
+
+            <a href="/update-user" class="btn btn-primary">update User</a>
+            <a href="/delete-user" class="btn btn-warning">delete User</a>
+        </div>
+
+    </div>
+</body>
+</html>

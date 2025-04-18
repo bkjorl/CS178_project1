@@ -15,12 +15,14 @@ dynamodb = boto3.resource('dynamodb', region_name="us-east-1")
 table = dynamodb.Table(TABLE_NAME)
 
 #app routes
+#home page
 @app.route('/')
 def home():
     return render_template('home.html')
 
+
+#user pages
 #add user page
-    #add user function and then redirect to home page
 @app.route('/add-user', methods=['GET', 'POST'])
 def add_user():
     if request.method == 'POST':
@@ -96,47 +98,7 @@ def display_users():
         flash('Could not load users.', 'danger')
         return redirect(url_for('home'))
 
-
-#user homepage
-@app.route('/user_home')
-def user_home():
-    return render_template('user_home.html')
-
-#recommendation homepage
-@app.route('/recommendation_home')
-def recommendation_home():
-    return render_template('recommendation_home.html')
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
+#reccomendation pages
 def get_conn():
     conn = pymysql.connect(
         host= creds.host,
@@ -153,24 +115,108 @@ def execute_query(query, args=()):
     cur.close()
     return rows
 
-#display the sqlite query in a html table
 def display_html(rows):
     html = ""
-    html += """<table><tr><th>title</th><th>release_date</th><th>runtime</th></tr>"""
+    html += """<table><tr><th>title</th><th>genre_name</th><th>runtime</th></tr>"""
 
     for r in rows:
         html += "<tr><td>" + str(r[0]) + "</td><td>" + str(r[1]) + "</td><td>" + str(r[2]) + "</td></tr>"
     html += "</table></body>"
     return html
 
+#Genre Recommendations
+@app.route("/genre_rec", methods=["GET", "POST"])
+def genre_rec():
+    movies = []
+    genre = None
 
-@app.route("/viewmovie")
-def viewdb():
-    rows = execute_query("""SELECT title, release_date, runtime
-                FROM movie
+    if request.method == "POST":
+        genre = request.form.get("genre")
+
+        if not genre:
+            flash("Genre is required.", "danger")
+            return redirect(url_for("genre_rec"))
+
+        try:
+            query = """
+                SELECT title, genre_name, release_date
+                FROM movie 
+                JOIN movie_genres USING(movie_id) 
+                JOIN genre USING(genre_id)
+                WHERE genre_name = %s
+                ORDER BY release_date DESC
+                LIMIT 10
+            """
+            movies = execute_query(query, (genre,))
+        except Exception as e:
+            flash("Error fetching movies by genre.", "danger")
+            print("Query error:", e)
+
+    return render_template("genre_rec.html", movies=movies, genre=genre)
+
+#User Reccomentation
+@app.route("/personal_rec", methods=["GET", "POST"])
+def personal_rec():
+    genre = None
+    movies = []
+
+    if request.method == 'POST':
+        email = request.form.get("email") 
+
+        if not email:
+            flash("Email is required.", "danger")
+            return redirect(url_for("personal_rec"))
+
+        # Query DynamoDB for genre based on email
+        try:
+            user = table.get_item(Key={'Email': email})
+            if 'Item' in user:
+                genre = user['Item'].get('Genre')
+            else:
+                flash("Email not found in user database.", "warning")
+        except Exception as e:
+            flash("Error accessing user data.", "danger")
+            print("DynamoDB error:", e)
+
+        # If genre found, filter movies by genre
+        if genre:
+            query = """
+                SELECT title, genre_name, release_date
+                FROM movie 
+                JOIN movie_genres USING(movie_id) 
+                JOIN genre USING(genre_id)
+                WHERE genre_name = %s
                 ORDER BY release_date
-                Limit 50""")
-    return display_html(rows)
+                LIMIT 10
+            """
+            params = (genre,)
+        else:
+            # Fallback query if no genre
+            query = """
+                SELECT title, genre_name, release_date
+                FROM movie 
+                JOIN movie_genres USING(movie_id) 
+                JOIN genre USING(genre_id)
+                ORDER BY release_date
+                LIMIT 10
+            """
+            params = ()
+
+        movies = execute_query(query, params)
+
+    return render_template("personal_rec.html", movies = movies, genre = genre)
+
+
+
+#user homepage
+@app.route('/user_home')
+def user_home():
+    return render_template('user_home.html')
+
+#recommendation homepage
+@app.route('/recommendation_home')
+def recommendation_home():
+    return render_template('recommendation_home.html')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080, debug=True)

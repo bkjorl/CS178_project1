@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <title>Movie Recommendations</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-5">
+    <h2>Get Movie Recommendations</h2>
+
+    <!-- Flash messages for success or error -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} mt-3" role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Form to submit email for personalized recommendations -->
+    <form method="POST" action="{{ url_for('genre_rec') }}" class="mt-4">
+        <div class="form-group">
+            <label for="genre">Enter a genre</label>
+            <input type="text" name="genre" id="genre" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Get Recommendations</button>
+    </form>
+
+    {% if genre %}
+        <h4 class="mt-5">Recommended Movies for Genre: <strong>{{ genre }}</strong></h4>
+    {% else %}
+        <h4 class="mt-5">Recent Movies:</h4>
+    {% endif %}
+
+    {% if movies %}
+        <table class="table table-bordered table-striped mt-3">
+            <thead class="thead-light">
+                <tr>
+                    <th>Title</th>
+                    <th>Genre</th>
+                    <th>Release Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for movie in movies %}
+                <tr>
+                    <td>{{ movie[0] }}</td>
+                    <td>{{ movie[1] }}</td>
+                    <td>{{ movie[2] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="text-muted mt-3">No movies found.</p>
+    {% endif %}
+</div>
+</body>
+</html>

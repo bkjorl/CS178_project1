@@ -1,36 +1,32 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>User Home Page</title>
+    <title>Dashboard</title>
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <!-- display a flash message here, if necessary -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-    
-    <div class="container">
-        <h1 class="mt-5">Sign In</h1>
-        <div class="container">
 
-        </div>
-        
-        <!-- the formatting for this section was done with the help of Chatgpt -->
-        <div class="d-flex mt-3">
-            <input type="submit" value="Submit" class="btn btn-success mr-2">
+<!-- this formatting was made with the help of Chatgpt -->
+<div class="container mt-5">
+    <h1 class="mb-4">Welcome to Your Dashboard</h1>
 
-            <a href="/update-user" class="btn btn-primary">update User</a>
-            <a href="/delete-user" class="btn btn-warning">delete User</a>
-        </div>
+    <!-- Show user email if passed in -->
+    {% if user_email %}
+        <p class="lead">Logged in as: <strong>{{ user_email }}</strong></p>
+    {% else %}
+        <p class="text-danger">No user info available.</p>
+    {% endif %}
 
-    </div>
+    <hr>
+
+    <p>This is where you could show account info, stats, recent activity, or links to other pages.</p>
+
+    <!-- Example buttons -->
+    <a href="/" class="btn btn-secondary mt-3">Back to Home</a>
+    <a href="/logout" class="btn btn-danger mt-3 ml-2">Logout</a>
+    <a href="/update_user" class="btn btn-primary mt-3 ml-2">Logout</a>
+    <a href="/delete_user" class="btn btn-danger mt-3 ml-2">Logout</a>
+</div>
 </body>
 </html>

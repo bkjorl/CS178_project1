@@ -1,10 +1,9 @@
 from flask import Flask
 from flask import render_template
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, session #session was added with the help of ChatGPT
 import pymysql
 import creds 
 import boto3
-#session created with the help of chatgpt
 
 
 app = Flask(__name__)
@@ -22,6 +21,28 @@ table = dynamodb.Table(TABLE_NAME)
 def home():
     return render_template('home.html')
     #options are sign into account with will rediect to user home page or too create an account
+
+@app.route('/login', methods=['POST'])
+def login():
+    email = request.form['email']
+    password = request.form['password']
+
+    try:
+        response = table.get_item(Key={'email': email})
+        user = response.get('Item')
+
+        if user and user['password'] == password:  # In real apps, use hashed passwords
+            session['user'] = email
+            flash('Login successful!', 'success')
+            return redirect(url_for('user_home'))
+        else:
+            flash('Invalid email or password.', 'danger')
+            return redirect(url_for('home'))
+
+    except Exception as e:
+        print("DynamoDB error:", e)
+        flash('An error occurred during login.', 'danger')
+        return redirect(url_for('home'))
 
 #add user page
     #add user function and then redirect to home page
@@ -48,6 +69,7 @@ def add_user():
         return render_template('add_user.html')
     
 #user homepage
+
     #list favorite genre 
     #lsit movies that are also in that genre and came out within a similar timeframe
         #RDS and joins

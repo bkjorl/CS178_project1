@@ -32,7 +32,8 @@
         {% else %}
             <p>No users found.</p>
         {% endif %}
-
+        
+        <!-- Button is added so that users do not get stuck on this page since it does not submit anything like the other user pages -->
         <a href="{{ url_for('home') }}" class="btn btn-secondary mt-3">Back to Home</a>
     </div>
 </body>

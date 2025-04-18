@@ -1,6 +1,7 @@
 from flask import Flask
 from flask import render_template
 from flask import Flask, render_template, request, redirect, url_for, flash
+from dbCode import execute_query, table
 import pymysql
 import creds 
 import boto3
@@ -8,18 +9,11 @@ import boto3
 app = Flask(__name__)
 app.secret_key = 'your_secret_key' 
 
-#connecting to dynamodb database
-TABLE_NAME = "Users"
-
-dynamodb = boto3.resource('dynamodb', region_name="us-east-1")
-table = dynamodb.Table(TABLE_NAME)
-
 #app routes
 #home page
 @app.route('/')
 def home():
     return render_template('home.html')
-
 
 #user pages
 #add user page
@@ -77,6 +71,7 @@ def update_user():
             flash('User updated successfully!', 'success')
             return redirect(url_for('home'))
 
+        #exception created with the help of Chatgpt
         except Exception as e:
             print("Update error:", e)
             flash('Error updating user.', 'danger')
@@ -99,31 +94,6 @@ def display_users():
         return redirect(url_for('home'))
 
 #reccomendation pages
-def get_conn():
-    conn = pymysql.connect(
-        host= creds.host,
-        user= creds.user, 
-        password = creds.password,
-        db=creds.db,
-        )
-    return conn
-
-def execute_query(query, args=()):
-    cur = get_conn().cursor()
-    cur.execute(query, args)
-    rows = cur.fetchall()
-    cur.close()
-    return rows
-
-def display_html(rows):
-    html = ""
-    html += """<table><tr><th>title</th><th>genre_name</th><th>runtime</th></tr>"""
-
-    for r in rows:
-        html += "<tr><td>" + str(r[0]) + "</td><td>" + str(r[1]) + "</td><td>" + str(r[2]) + "</td></tr>"
-    html += "</table></body>"
-    return html
-
 #Genre Recommendations
 @app.route("/genre_rec", methods=["GET", "POST"])
 def genre_rec():
@@ -134,15 +104,14 @@ def genre_rec():
         genre = request.form.get("genre")
 
         if not genre:
-            flash("Genre is required.", "danger")
+            flash("please input a genre", "danger")
             return redirect(url_for("genre_rec"))
 
+        #the parameters part of this query and the exceptions section were created with the help of Chatgpt
         try:
             query = """
                 SELECT title, genre_name, release_date
-                FROM movie 
-                JOIN movie_genres USING(movie_id) 
-                JOIN genre USING(genre_id)
+                FROM movie JOIN movie_genres USING(movie_id) JOIN genre USING(genre_id)
                 WHERE genre_name = %s
                 ORDER BY release_date DESC
                 LIMIT 10
@@ -164,10 +133,10 @@ def personal_rec():
         email = request.form.get("email") 
 
         if not email:
-            flash("Email is required.", "danger")
+            flash("please input an email.", "danger")
             return redirect(url_for("personal_rec"))
 
-        # Query DynamoDB for genre based on email
+        #these exceptions were created with the help of Chatgpt
         try:
             user = table.get_item(Key={'Email': email})
             if 'Item' in user:
@@ -178,7 +147,7 @@ def personal_rec():
             flash("Error accessing user data.", "danger")
             print("DynamoDB error:", e)
 
-        # If genre found, filter movies by genre
+        #the parameters part of this query was created with the help of Chatgpt
         if genre:
             query = """
                 SELECT title, genre_name, release_date
@@ -190,24 +159,12 @@ def personal_rec():
                 LIMIT 10
             """
             params = (genre,)
-        else:
-            # Fallback query if no genre
-            query = """
-                SELECT title, genre_name, release_date
-                FROM movie 
-                JOIN movie_genres USING(movie_id) 
-                JOIN genre USING(genre_id)
-                ORDER BY release_date
-                LIMIT 10
-            """
-            params = ()
 
         movies = execute_query(query, params)
 
     return render_template("personal_rec.html", movies = movies, genre = genre)
 
-
-
+#additional homepages that link to user pages and reccommendation pages
 #user homepage
 @app.route('/user_home')
 def user_home():

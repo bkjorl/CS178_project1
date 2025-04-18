@@ -102,6 +102,10 @@ def display_users():
 def user_home():
     return render_template('user_home.html')
 
+#recommendation homepage
+@app.route('/recommendation_home')
+def recommendation_home():
+    return render_template('recommendation_home.html')
 
 
 

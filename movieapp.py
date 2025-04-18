@@ -19,9 +19,7 @@ table = dynamodb.Table(TABLE_NAME)
 @app.route('/')
 def home():
     return render_template('home.html')
-
-    #sign in - input email and password and redirect to user home
-    #add user - rediect to add user page
+    #options are sign into account with will rediect to user home page or too create an account
 
 #add user page
     #add user function and then redirect to home page
@@ -54,8 +52,8 @@ def add_user():
 
     #option to update user
     #option to delete user
+
 #delete user
-    #input email
 @app.route('/delete-user', methods=['GET', 'POST'])
 def delete_user():
     if request.method == 'POST':
